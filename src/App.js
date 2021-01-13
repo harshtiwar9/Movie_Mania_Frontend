@@ -3,6 +3,7 @@ import M from "materialize-css";
 import 'materialize-css/dist/css/materialize.min.css';
 import './App.css';
 import axios from 'axios';
+var Cookies = require('js-cookie');
 
 function App() {
 
@@ -13,6 +14,9 @@ function App() {
     // Init Tabs Materialize JS
     var elems = document.querySelectorAll('.modal');
     window.M.Modal.init(elems);
+
+    elems = document.querySelectorAll('.dropdown-trigger');
+    window.M.Dropdown.init(elems);
 
   });
 
@@ -27,7 +31,14 @@ function App() {
     //axios request to fetch movies and info about it
     axios.get(dbUrl + "/movies")
       .then(function (response) {
-        setMovies(response.data);
+        console.log(response.data.length)
+        if (response.data.length === 12) {
+          console.log(response.data)
+          setMovies(response.data);
+        }else{
+          fetchMovies();
+        }
+
       })
       .catch(function (error) {
         console.log(error);
@@ -46,6 +57,21 @@ function App() {
       email: e.target.signup_email.value,
       pass: e.target.signup_pass.value
     }
+
+    axios.post(dbUrl + "/signup", data)
+      .then(function (response) {
+        console.log(response.data);
+        if (response.data.Code === 200) {
+          window.M.toast({ html: 'You are registered succefully! \n Login with your credentials!' })
+        } else if (response.data.Code === 403) {
+          window.M.toast({ html: 'Email already registered!' })
+        }
+      })
+      .catch(function (error) {
+        console.log({ error })
+        window.M.toast({ html: 'Email already registered!' })
+      })
+
   }
 
   //handle Login Form
@@ -56,6 +82,56 @@ function App() {
       email: e.target.login_email.value,
       pass: e.target.login_pass.value
     }
+
+    axios.post(dbUrl + "/login", data)
+      .then(function (response) {
+        console.log(response.data);
+        if (response.data.Code === 200) {
+          Cookies.set('AuthToken', response.data.AuthToken, { expires: response.data.maxAge })
+          Cookies.set('Name', response.data.name, { expires: response.data.maxAge })
+          Cookies.set('Email', response.data.email, { expires: response.data.maxAge })
+          window.location.href = "http://localhost:3000";
+          window.M.toast({ html: 'Welcome ' + response.data.name + " !" })
+        } else if (response.data.Code === 403) {
+          window.M.toast({ html: response.data.message })
+        }
+      })
+      .catch(function (error) {
+        console.log({ error })
+        window.M.toast({ html: 'Error!' })
+      })
+
+  }
+
+  //handle Logout
+  const handleLogout = (e) => {
+    e.preventDefault();
+
+    const data = {
+      token: Cookies.get('AuthToken'),
+      email: Cookies.get('Email')
+    }
+
+    axios.post(dbUrl + "/logout", data)
+      .then(function (response) {
+        console.log(response.data);
+        if (response.data.success === true) {
+          Cookies.remove('AuthToken');
+          Cookies.remove('Email');
+          Cookies.remove('Name');
+          window.M.toast({ html: 'You are logged out!' })
+          window.location.href = "http://localhost:3000";
+      } else if (response.data.success === false) {
+          
+      } else {
+          alert("Error while Logout!");
+      }
+      })
+      .catch(function (error) {
+        console.log({ error })
+        window.M.toast({ html: 'Error!' })
+      })
+
   }
 
   return (
@@ -65,11 +141,29 @@ function App() {
       <nav>
         <div className="nav-wrapper">
           <a href="#" className="brand-logo center">Movie Mania</a>
-          <ul id="nav-mobile" className="right hide-on-med-and-down">
-            <li><a href="#!">Offers</a></li>
-            <li><a href="#login" className="waves-effect waves-light modal-trigger">Login</a></li>
-            <li><a href="#signup" className="waves-effect waves-light modal-trigger">Signup</a></li>
-          </ul>
+
+          {
+            Cookies.get('AuthToken') != null || "" ?
+              <>
+                {/* <!-- Dropdown Trigger --> */}
+                <a class='dropdown-trigger right' href='#' data-target='dropdown1'>Hi {Cookies.get('Name')} <i class="material-icons right">arrow_drop_down</i></a>
+
+                {/* <!-- Dropdown Structure --> */}
+                <ul id='dropdown1' class='dropdown-content'>
+                  <li><a href="#!">Profile</a></li>
+                  <li><a href="#!">Offers</a></li>
+                  <li><a href="#!" onClick={handleLogout}>Logout</a></li>
+                </ul>
+              </>
+              :
+              <>
+                <ul id="nav-mobile" className="right hide-on-med-and-down">
+                  <li><a href="#!">Offers</a></li>
+                  <li><a href="#login" className="waves-effect waves-light modal-trigger">Login</a></li>
+                  <li><a href="#signup" className="waves-effect waves-light modal-trigger">Signup</a></li>
+                </ul>
+              </>
+          }
         </div>
       </nav>
 
@@ -78,21 +172,21 @@ function App() {
         movies.map((elm, index) => {
           // {console.log(elm)}
           return (
-              <div className="col s12 m6 l3">
-                <div className="card">
-                  <div className="card-image waves-effect waves-block waves-light">
-                    <img className="activator" src={elm.poster} />
-                  </div>
-                  <div className="card-content">
-                    <span className="card-title activator grey-text text-darken-4">{elm.title}</span>
-                    <p><a href="#">This is a link</a></p>
-                  </div>
-                  <div className="card-reveal">
-                    <span className="card-title grey-text text-darken-4">{elm.title}<i className="material-icons right">close</i></span>
-                    <p>{elm.desc}</p>
-                  </div>
+            <div className="col s12 m6 l3">
+              <div className="card">
+                <div className="card-image waves-effect waves-block waves-light">
+                  <img className="activator" src={elm.poster} />
+                </div>
+                <div className="card-content">
+                  <span className="card-title activator grey-text text-darken-4">{elm.title}</span>
+                  <p><a href="#">This is a link</a></p>
+                </div>
+                <div className="card-reveal">
+                  <span className="card-title grey-text text-darken-4 center">{elm.title}<i className="material-icons right">close</i></span>
+                  <p>{elm.desc}</p>
                 </div>
               </div>
+            </div>
           )
         })}
       </div>
@@ -141,7 +235,7 @@ function App() {
             <p>
               <div className="row">
                 <div className="input-field col s12">
-                  <input name="signup_name" type="email" className="validate" />
+                  <input name="signup_name" type="text" className="validate" />
                   <label for="signup_name">Full Name</label>
                 </div>
                 <div className="input-field col s12">
