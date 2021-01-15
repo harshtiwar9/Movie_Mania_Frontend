@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import M from "materialize-css";
 import 'materialize-css/dist/css/materialize.min.css';
 import './App.css';
+import Movies from './Components/Movies/Movies';
 import axios from 'axios';
 var Cookies = require('js-cookie');
 
@@ -11,6 +12,8 @@ function App() {
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
+
+    let dt = new Date();
     // Init Tabs Materialize JS
     var elems = document.querySelectorAll('.modal');
     window.M.Modal.init(elems);
@@ -18,15 +21,21 @@ function App() {
     elems = document.querySelectorAll('.dropdown-trigger');
     window.M.Dropdown.init(elems);
 
+    elems = document.querySelectorAll('.sidenav');
+    window.M.Sidenav.init(elems);
+
+    elems = document.querySelectorAll('select');
+    window.M.FormSelect.init(elems);
+
+    elems = document.querySelectorAll('.datepicker');
+    window.M.Datepicker.init(elems,{
+      minDate : new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()),
+      maxDate : new Date(dt.getFullYear(),dt.getMonth()+1,dt.getDate()),
+    });
+
   });
 
   const fetchMovies = () => {
-
-    // desc: "Six strangers find themselves in a maze of deadly mystery rooms and must use their wits to survive."
-    // poster: "https://m.media-amazon.com/images/M/MV5BMjQ2NDMwMTY3MF5BMl5BanBnXkFtZTgwNDg5OTc1NjM@.jpg"
-    // title: "Escape Room "
-    // trailer: "https://www.imdb.com/videoplayer/vi1755167257"
-    // year: "2019"
 
     //axios request to fetch movies and info about it
     axios.get(dbUrl + "/movies")
@@ -35,7 +44,7 @@ function App() {
         if (response.data.length === 12) {
           console.log(response.data)
           setMovies(response.data);
-        }else{
+        } else {
           fetchMovies();
         }
 
@@ -121,11 +130,11 @@ function App() {
           Cookies.remove('Name');
           window.M.toast({ html: 'You are logged out!' })
           window.location.href = "http://localhost:3000";
-      } else if (response.data.success === false) {
-          
-      } else {
+        } else if (response.data.success === false) {
+
+        } else {
           alert("Error while Logout!");
-      }
+        }
       })
       .catch(function (error) {
         console.log({ error })
@@ -146,7 +155,7 @@ function App() {
             Cookies.get('AuthToken') != null || "" ?
               <>
                 {/* <!-- Dropdown Trigger --> */}
-                <a class='dropdown-trigger right' href='#' data-target='dropdown1'>Hi {Cookies.get('Name')} <i class="material-icons right">arrow_drop_down</i></a>
+                <a class='dropdown-trigger right hide-on-med-and-down' href='#' data-target='dropdown1'>Hi {Cookies.get('Name')} <i class="material-icons right">arrow_drop_down</i></a>
 
                 {/* <!-- Dropdown Structure --> */}
                 <ul id='dropdown1' class='dropdown-content'>
@@ -154,9 +163,25 @@ function App() {
                   <li><a href="#!">Offers</a></li>
                   <li><a href="#!" onClick={handleLogout}>Logout</a></li>
                 </ul>
+
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <ul class="sidenav" id="mobile-demo">
+                <li className="black-text"><h4>Hi {Cookies.get('Name')}!</h4></li>
+                <hr/>
+                  <li><a href="#!">Profile</a></li>
+                  <li><a href="#!">Offers</a></li>
+                  <li><a href="#!" onClick={handleLogout}>Logout</a></li>
+                </ul>
               </>
               :
               <>
+
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <ul class="sidenav" id="mobile-demo">
+                  <li><a href="#!">Offers</a></li>
+                  <li><a href="#login" className="waves-effect waves-light modal-trigger">Login</a></li>
+                  <li><a href="#signup" className="waves-effect waves-light modal-trigger">Signup</a></li>
+                </ul>
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
                   <li><a href="#!">Offers</a></li>
                   <li><a href="#login" className="waves-effect waves-light modal-trigger">Login</a></li>
@@ -168,27 +193,57 @@ function App() {
       </nav>
 
       {/* Grid for Movies */}
-      <div className="container row">{
-        movies.map((elm, index) => {
-          // {console.log(elm)}
-          return (
-            <div className="col s12 m6 l3">
-              <div className="card">
-                <div className="card-image waves-effect waves-block waves-light">
-                  <img className="activator" src={elm.poster} />
+      <div className="container center">
+        <div className="row">
+          {
+            movies.length != 0 ?
+              <Movies movies={movies} /> :
+              <div class="preloader-wrapper big active center">
+
+                <div class="spinner-layer spinner-blue">
+                  <div class="circle-clipper left">
+                    <div class="circle"></div>
+                  </div><div class="gap-patch">
+                    <div class="circle"></div>
+                  </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                  </div>
                 </div>
-                <div className="card-content">
-                  <span className="card-title activator grey-text text-darken-4">{elm.title}</span>
-                  <p><a href="#">This is a link</a></p>
+
+                <div class="spinner-layer spinner-red">
+                  <div class="circle-clipper left">
+                    <div class="circle"></div>
+                  </div><div class="gap-patch">
+                    <div class="circle"></div>
+                  </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                  </div>
                 </div>
-                <div className="card-reveal">
-                  <span className="card-title grey-text text-darken-4 center">{elm.title}<i className="material-icons right">close</i></span>
-                  <p>{elm.desc}</p>
+
+                <div class="spinner-layer spinner-yellow">
+                  <div class="circle-clipper left">
+                    <div class="circle"></div>
+                  </div><div class="gap-patch">
+                    <div class="circle"></div>
+                  </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                  </div>
                 </div>
+
+                <div class="spinner-layer spinner-green">
+                  <div class="circle-clipper left">
+                    <div class="circle"></div>
+                  </div><div class="gap-patch">
+                    <div class="circle"></div>
+                  </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                  </div>
+                </div>
+
               </div>
-            </div>
-          )
-        })}
+
+          }
+        </div>
       </div>
 
 
@@ -213,7 +268,6 @@ function App() {
             </p>
           </div>
           <div className="modal-footer center">
-            {/* <a href="#!" className="modal-close waves-effect waves-green btn-flat">Agree</a> */}
             <div className="row">
               <div className="col s3 push-s3 center">
                 <button className="btn waves-effect waves-light" type="submit" name="action">Login</button>

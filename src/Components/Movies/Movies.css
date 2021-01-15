@@ -1,0 +1,22 @@
+.modal{
+    max-height: fit-content;
+}
+
+.modal.booknow{
+    height: 80%;
+}
+
+.modal.bookingCompleted{
+    height: 75%;
+}
+
+.card .card-title {
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.toast{
+    background-color: white;
+    color: black;
+    font-weight: 400;
+}
