@@ -31,11 +31,11 @@ const Movies = ({ movies }) => {
 
             axios.post(dbUrl + "/book", data)
                 .then(function (response) {
-                    console.log(response.data);
 
                     if (response.data.Code === 200) {
                         window.M.toast({ html: 'Movie tickets are booked!' }, 3000);
                         e.target.reset();
+
                         var elem = document.getElementById("bn" + data.movieName);
                         window.M.Modal.getInstance(elem).close();
 
@@ -50,7 +50,6 @@ const Movies = ({ movies }) => {
                     }
 
                 }).catch(function (error) {
-                    console.log(error)
                     if (error.data.success === false) {
                         Cookies.remove('AuthToken');
                         Cookies.remove('Email');
@@ -68,14 +67,14 @@ const Movies = ({ movies }) => {
     }
 
     return (
-        movies.map((elm) => {
+        movies.map((elm,index) => {
             // {console.log(elm)}
             return (
                 <>
-                    <div className="col s12 m6 l3">
+                    <div key={elm+index} className="col s12 m6 l3">
                         <div className="card hoverable">
                             <div className="card-image waves-effect waves-block waves-light">
-                                <img className="activator" src={elm.poster} />
+                                <img className="activator" alt={elm.title} src={elm.poster} />
                             </div>
                             <div className="card-content">
                                 <span className="card-title activator grey-text text-darken-4">{elm.title}({elm.year})<i class="material-icons right">more_vert</i></span>
@@ -101,7 +100,7 @@ const Movies = ({ movies }) => {
                             <h4 className="center">{elm.title} <i className="material-icons right modal-close">close</i></h4>
                             <hr />
                             <div class="video-container">
-                                <iframe width="853" height="480" src={elm.trailer.replace("watch?v=", "embed/")} frameborder="0" allowfullscreen></iframe>
+                                <iframe title={elm.title} width="853" height="480" src={elm.trailer.replace("watch?v=", "embed/")} frameborder="0" allowfullscreen></iframe>
                             </div>
                         </div>
                     </div>

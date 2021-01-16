@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { React, useState, useEffect } from 'react';
 import './History.css'
-var Cookies = require('js-cookie');
+import Navbar from '../Navbar/Navbar';
 
 const History = ({ email }) => {
 
     const dbUrl = "http://localhost:3003";
     const [history, setHistory] = useState([]);
-
-    const data = { email: email }
 
     useEffect(() => {
         axios.post(dbUrl + "/history", { email })
@@ -16,13 +14,14 @@ const History = ({ email }) => {
                 setHistory(response.data)
             })
             .catch(function (error) {
-                console.log(error.data)
+                window.M.toast({ html: 'Issue while fetching History! \n Try again Later!' })
             })
     }, [])
 
 
     return (
         <>
+            <Navbar />
             <h1 className="center">History</h1>
             <table className="centered responsive-table highlight">
                 <thead>
