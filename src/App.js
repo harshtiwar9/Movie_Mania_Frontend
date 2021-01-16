@@ -3,6 +3,9 @@ import M from "materialize-css";
 import 'materialize-css/dist/css/materialize.min.css';
 import './App.css';
 import Movies from './Components/Movies/Movies';
+import Loading from './Components/Loading/Loading';
+import History from './Components/History/History';
+import Offers from './Components/Offers/Offers';
 import axios from 'axios';
 var Cookies = require('js-cookie');
 
@@ -10,6 +13,7 @@ function App() {
 
   const dbUrl = "http://localhost:3003";
   const [movies, setMovies] = useState([]);
+  const [showWhichComponent, setShowWhichComponent] = useState("movies");
 
   useEffect(() => {
 
@@ -28,10 +32,13 @@ function App() {
     window.M.FormSelect.init(elems);
 
     elems = document.querySelectorAll('.datepicker');
-    window.M.Datepicker.init(elems,{
-      minDate : new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()),
-      maxDate : new Date(dt.getFullYear(),dt.getMonth()+1,dt.getDate()),
+    window.M.Datepicker.init(elems, {
+      minDate: new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()),
+      maxDate: new Date(dt.getFullYear(), dt.getMonth() + 1, dt.getDate()),
     });
+
+    elems = document.querySelectorAll('.tooltipped');
+    window.M.Tooltip.init(elems);
 
   });
 
@@ -164,12 +171,16 @@ function App() {
                   <li><a href="#!" onClick={handleLogout}>Logout</a></li>
                 </ul>
 
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                  <li><a href="#!">Offers</a></li>
+                  <li><a href="#!">History</a></li>
+                </ul>
+
                 <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                 <ul class="sidenav" id="mobile-demo">
-                <li className="black-text"><h4>Hi {Cookies.get('Name')}!</h4></li>
-                <hr/>
+                  <li className="black-text"><h4>Hi {Cookies.get('Name')}!</h4></li>
+                  <hr />
                   <li><a href="#!">Profile</a></li>
-                  <li><a href="#!">Offers</a></li>
                   <li><a href="#!" onClick={handleLogout}>Logout</a></li>
                 </ul>
               </>
@@ -196,51 +207,19 @@ function App() {
       <div className="container center">
         <div className="row">
           {
+
             movies.length != 0 ?
-              <Movies movies={movies} /> :
-              <div class="preloader-wrapper big active center">
+              <Movies movies={movies} />
+              :
+              <Loading />
 
-                <div class="spinner-layer spinner-blue">
-                  <div class="circle-clipper left">
-                    <div class="circle"></div>
-                  </div><div class="gap-patch">
-                    <div class="circle"></div>
-                  </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                  </div>
-                </div>
+            // Cookies.get('Email') != undefined || "" || null ?
+            //   <History email={Cookies.get('Email')} />
+            //   : ""
 
-                <div class="spinner-layer spinner-red">
-                  <div class="circle-clipper left">
-                    <div class="circle"></div>
-                  </div><div class="gap-patch">
-                    <div class="circle"></div>
-                  </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                  </div>
-                </div>
-
-                <div class="spinner-layer spinner-yellow">
-                  <div class="circle-clipper left">
-                    <div class="circle"></div>
-                  </div><div class="gap-patch">
-                    <div class="circle"></div>
-                  </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                  </div>
-                </div>
-
-                <div class="spinner-layer spinner-green">
-                  <div class="circle-clipper left">
-                    <div class="circle"></div>
-                  </div><div class="gap-patch">
-                    <div class="circle"></div>
-                  </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                  </div>
-                </div>
-
-              </div>
+            // Cookies.get('Email') != undefined || "" || null ?
+            //   <Offers />
+            //   : ""
 
           }
         </div>
